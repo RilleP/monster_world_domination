@@ -134,6 +134,27 @@ draw_textured_rect_center_size :: proc(texture: ^Texture, center, size: Vec2, co
 	draw_textured_rect_min_max(texture, center-size*0.5, center+size*0.5, color);
 }
 
+draw_textured_rect_center_size_direction :: proc(texture: ^Texture, center, size: Vec2, forward: Vec2, color: Vec4 = {1, 1, 1, 1}) {
+	cos := forward.x;
+	sin := forward.y;
+	pd := [4]Vec2 {
+		{-1, -1},
+		{1, -1},
+		{1, 1},
+		{-1, 1},
+	};
+
+	p : [4]Vec2;
+	for pi in 0..<4 {
+		p[pi] = center + Vec2{pd[pi].x*size.x * cos - pd[pi].y*size.y * sin, pd[pi].x*size.x * sin + pd[pi].y*size.y * cos} * 0.5;
+	}
+	set_shader(textured_program);
+	set_texture(texture);
+	min_uv := Vec2 {0, 0};
+	max_uv := Vec2 {1, 1};
+	draw_quad_corners(p[0], p[1], p[2], p[3], min_uv, {max_uv.x, min_uv.y}, max_uv, {min_uv.x, max_uv.y}, color);
+}
+
 draw_rect_border_min_max :: proc(min, max: Vec2, width: f32, color: Vec4) {
 	set_shader(color_program);
 	o0, o1, o2, o3 : Vec2 = min, {max.x, min.y}, max, {min.x, max.y};

@@ -548,7 +548,9 @@ setup_test_map :: proc(game: ^Game) -> bool {
 	return true;
 }
 
+cover_texture: Texture;
 pause_icon_texture: Texture;
+arrow_texture: Texture;
 MONSTER_TEXTURES: [Monster_Type]Texture;
 SUMMON_ANIMATION_TEXTURES: [4]Texture;
 MAP_COUNT :: 4;
@@ -557,7 +559,6 @@ map_team_counts: [MAP_COUNT]int = {
 	2, 3, 4, 4
 };
 
-
 map_team_index_difficulty := [MAP_COUNT][TEAM_COUNT]int {
 	0 = {0, 2, 0, 0},
 	1 = {1, 1, 1, 0},
@@ -565,6 +566,8 @@ map_team_index_difficulty := [MAP_COUNT][TEAM_COUNT]int {
 	3 = {1, 1, 2, 0},
 }
 load_assets :: proc() {
+	load_texture("res/cover.png", &cover_texture);
+	load_texture("res/arrow.png", &arrow_texture);
 	load_texture("res/ghost.png", &MONSTER_TEXTURES[.Ghost]);
 	load_texture("res/archer.png", &MONSTER_TEXTURES[.Archer]);
 	for fi in 0..<len(SUMMON_ANIMATION_TEXTURES) {
@@ -1132,7 +1135,15 @@ world_tick_and_draw :: proc(game: ^Game) {
 
 	for pi := 0; pi < game.projectile_count; pi += 1 {
 		proj := game.projectiles[pi];
-		draw_colored_rect_center_size(proj.position, 3, {0, 0, 0, 1});
+		target := get_entity(game, proj.target);
+		forward: Vec2;
+		if target != nil {
+			forward = linalg.normalize(target.position - proj.position);
+		}
+		else {
+			forward = {1, 0};
+		}
+		draw_textured_rect_center_size_direction(&arrow_texture, proj.position, 5, forward/*, {0, 0, 0, 1}*/);
 	}
 
 	for ii in 0..<len(game.computer_players) {
@@ -1142,6 +1153,11 @@ world_tick_and_draw :: proc(game: ^Game) {
 	}
 
 	//game.view_center += input_direction_axis() * dt * 50;
+
+	/*draw_colored_rect_center_size({100, 100}, 100, {1, 0, 0, 1});
+	rotation := get_time()*3;
+	forward := Vec2{math.cos(rotation), math.sin(rotation)};
+	draw_textured_rect_center_size_direction(&arrow_texture, {100, 100}, 20, forward/*, {0, 0, 0, 1}*/);*/
 }
 
 do_volume_slider :: proc(slider_rect: Rect) {	
@@ -1297,6 +1313,9 @@ game_gui_tick_and_draw :: proc(game: ^Game) {
 }
 
 game_tick_and_draw :: proc(game: ^Game) {
+	bg := Vec3{0.22, 0.17, 0.12}
+	start_draw_frame(bg);
+	
 	{ // Draw and tick the world
 		game.view_size.x = game.view_size.y * (window_size.x / window_size.y);
 		//game.view_size.y = game.view_size.x * (window_size.y / window_size.x);
@@ -1322,8 +1341,7 @@ game_tick_and_draw :: proc(game: ^Game) {
 
 
 app_tick_and_draw :: proc() {
-	bg := Vec3{0.22, 0.17, 0.12}
-	start_draw_frame(bg);
+	
 
 	set_draw_viewport(0, 0, window_width, window_height);
 

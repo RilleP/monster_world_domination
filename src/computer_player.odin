@@ -85,7 +85,7 @@ computer_player_tick :: proc(game: ^Game, player: ^Computer_Player) {
 				else if they_combined > 0 && mine_combined+5 < they_combined {
 					score = f32(1);
 				}
-				score *= rand.float32()*0.5 + 0.5;
+				score *= rand.float32()*0.4 + 0.6;
 				if score > best_score {
 					best_score = score;
 					best_placement_position = placement_position;

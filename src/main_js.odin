@@ -481,7 +481,7 @@ app_initialized := false;
 }
 
 get_time :: proc() -> f32 {
-	return ms_now();
+	return ms_now()*0.001;
 }
 
 Timer :: struct {

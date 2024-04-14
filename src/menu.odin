@@ -116,6 +116,10 @@ menu_picking_player :: proc(menu: ^Menu) {
 }
 
 menu_main :: proc(menu: ^Menu) {
+	cover_size := math.min(window_size.x, window_size.y);
+	rotation := get_time()*0.5;
+
+	draw_textured_rect_center_size_direction(&cover_texture, window_size*0.5, cover_size, {math.cos(rotation), math.sin(rotation)});
 	Menu_Button :: enum {
 		Play,
 		Help,
@@ -192,6 +196,9 @@ menu_help :: proc(menu: ^Menu) {
 }
 
 menu_tick_and_draw :: proc() {
+	bg := Vec3{16.0/255.0, 17.0/255.0, 48.0/255.0};
+	start_draw_frame(bg);
+
 	view_projection := linalg.matrix_ortho3d_f32(0, window_size.x, window_size.y, 0, -1.0, 1.0);	
 		set_view_projection(view_projection);
 
